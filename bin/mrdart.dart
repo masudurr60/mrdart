@@ -1,61 +1,87 @@
-import 'package:args/args.dart';
+import 'dart:io';
 
-const String version = '0.0.1';
-
-ArgParser buildParser() {
-  return ArgParser()
-    ..addFlag(
-      'help',
-      abbr: 'h',
-      negatable: false,
-      help: 'Print this usage information.',
-    )
-    ..addFlag(
-      'verbose',
-      abbr: 'v',
-      negatable: false,
-      help: 'Show additional command output.',
-    )
-    ..addFlag(
-      'version',
-      negatable: false,
-      help: 'Print the tool version.',
-    );
+// Abstract class for Role
+abstract class Role {
+  void displayRole();
 }
 
-void printUsage(ArgParser argParser) {
-  print('Usage: dart mrdart.dart <flags> [arguments]');
-  print(argParser.usage);
-}
+// Base class Person
+class Person implements Role {
+  String name;
+  int age;
+  String address;
 
-void main(List<String> arguments) {
-  final ArgParser argParser = buildParser();
-  try {
-    final ArgResults results = argParser.parse(arguments);
-    bool verbose = false;
+  Person(this.name, this.age, this.address);
 
-    // Process the parsed arguments.
-    if (results.wasParsed('help')) {
-      printUsage(argParser);
-      return;
-    }
-    if (results.wasParsed('version')) {
-      print('mrdart version: $version');
-      return;
-    }
-    if (results.wasParsed('verbose')) {
-      verbose = true;
-    }
-
-    // Act on the arguments provided.
-    print('Positional arguments: ${results.rest}');
-    if (verbose) {
-      print('[VERBOSE] All arguments: ${results.arguments}');
-    }
-  } on FormatException catch (e) {
-    // Print usage information if an invalid argument was provided.
-    print(e.message);
-    print('');
-    printUsage(argParser);
+  @override
+  void displayRole() {
+    // Will be overridden by child classes
   }
+}
+
+// Class Student extending Person
+class Student extends Person {
+  String studentID;
+  String grade;
+  List<int> courseScores;
+
+  Student(String name, int age, String address, this.studentID, this.grade, this.courseScores)
+      : super(name, age, address);
+
+  @override
+  void displayRole() {
+    print("Role: Student");
+  }
+
+  double calculateAverageScore() {
+    return courseScores.reduce((a, b) => a + b) / courseScores.length;
+  }
+
+  void displayInfo() {
+    print("\nStudent Information:");
+    displayRole();
+    print("Name: $name");
+    print("Age: $age");
+    print("Address: $address");
+    print("Average Score: ${calculateAverageScore().toStringAsFixed(1)}");
+  }
+}
+
+// Class Teacher extending Person
+class Teacher extends Person {
+  String teacherID;
+  List<String> coursesTaught;
+
+  Teacher(String name, int age, String address, this.teacherID, this.coursesTaught)
+      : super(name, age, address);
+
+  @override
+  void displayRole() {
+    print("Role: Teacher");
+  }
+
+  void displayInfo() {
+    print("\nTeacher Information:");
+    displayRole();
+    print("Name: $name");
+    print("Age: $age");
+    print("Address: $address");
+    print("Courses Taught:");
+    for (var course in coursesTaught) {
+      print("- $course");
+    }
+  }
+}
+
+// Main class StudentManagementSystem
+void main() {
+  // Create instances of Student and Teacher
+  Student student = Student(
+      'John Doe', 20, "123 Main Street", "S123", "A", [90, 85, 82]);
+  Teacher teacher = Teacher(
+      'Mrs. Smith', 35, "456 Oak St", "T456", ["Math", "English", "Bangla"]);
+
+  // Display their information
+  student.displayInfo();
+  teacher.displayInfo();
 }
